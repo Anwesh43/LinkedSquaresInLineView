@@ -203,4 +203,26 @@ class SquaresInLineView(ctx : Context) : View(ctx) {
             curr.startUpdating(cb)
         }
     }
+
+    data class Renderer(var view : SquaresInLineView) {
+
+        private val animator : Animator = Animator(view)
+        private val sil : SquaresInLine = SquaresInLine(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(backColor)
+            sil.draw(canvas, paint)
+            animator.animate {
+                sil.update {i, scl ->
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            sil.startUpdating {
+                animator.start()
+            }
+        }
+    }
 }
