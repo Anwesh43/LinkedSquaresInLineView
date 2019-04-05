@@ -226,4 +226,13 @@ class SquaresInLineView(ctx : Context) : View(ctx) {
             }
         }
     }
+
+    companion object {
+
+        fun create(activity : Activity) : SquaresInLineView {
+            val view : SquaresInLineView = SquaresInLineView(activity)
+            activity.setContentView(view)
+            return view
+        }
+    }
 }
