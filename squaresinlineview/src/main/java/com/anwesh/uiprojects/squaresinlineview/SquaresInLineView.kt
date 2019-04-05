@@ -21,6 +21,7 @@ val strokeFactor : Int = 90
 val sizeFactor : Float = 2.9f
 val foreColor : Int = Color.parseColor("#3F51B5")
 val backColor : Int = Color.parseColor("#BDBDBD")
+val delay : Long = 25
 
 fun Int.inverse() : Float = 1f / this
 fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n.inverse())
@@ -42,9 +43,12 @@ fun Canvas.drawXY(x : Float, y : Float, cb : (Canvas) -> Unit) {
 
 fun Canvas.drawMovingRect(i : Int, xGap : Float, h : Float, scale : Float, p : Paint) {
     val sc : Float = scale.divideScale(i, squares)
-    drawXY(xGap * i, (h / 2 - xGap / 2) * i.sf() * sc, {
+    save()
+    scale(1f, i.sf())
+    drawXY(xGap * i, (h / 2) * (1 - sc), {
         drawRect(RectF(0f, 0f, xGap, xGap), p)
     })
+    restore()
 }
 
 fun Paint.setStyle(minSize : Float) {
@@ -62,11 +66,16 @@ fun Canvas.drawSILNode(i : Int, scale : Float, paint : Paint) {
     val sc1 : Float = scale.divideScale(0, 2)
     val sc2 : Float = scale.divideScale(1, 2)
     val xGap : Float = (2 * size) / squares
+    paint.setStyle(Math.min(w, h))
     drawXY(gap * (i + 1), h / 2, {
         it.save()
         it.rotate(90f * sc2)
         it.drawLine(-size, 0f, size, 0f, paint)
-        it.drawMovingRect(i, xGap, h, sc1, paint)
+        drawXY(-size, 0f, {
+            for (j in 0..(squares - 1)) {
+                it.drawMovingRect(j, xGap, h, sc1, paint)
+            }
+        })
         it.restore()
     })
 }
@@ -115,7 +124,7 @@ class SquaresInLineView(ctx : Context) : View(ctx) {
             if (animated) {
                 cb()
                 try {
-                    Thread.sleep(50)
+                    Thread.sleep(delay)
                     view.invalidate()
                 } catch(ex : Exception) {
 
